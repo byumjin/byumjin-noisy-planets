@@ -97,15 +97,15 @@ vec3 getTerrainPos(vec3 worldPos, float resolution)
     return worldPos + localNormal * fbm(worldPos*resolution);
 }
 
-float OceanNoise(vec3 vertexPos, float oceneHeight, float noiseResult)
+float OceanNoise(vec3 vertexPos, float oceneHeight, float noiseResult, float blendFactor)
 {
     float relativeWaterDepth = min(1.0, (oceneHeight - noiseResult) * 15.0);
 
     float oceanTime = u_TimeInfo.x * 0.03;
 
     float shallowWaveRefraction = 4.0;
-    float waveMagnitude = 0.001;
-    float waveLength = 0.004;
+    float waveMagnitude = 0.0002;
+    float waveLength = mix(0.007, 0.0064, blendFactor);
 
     float shallowWavePhase = (vertexPos.y - noiseResult * shallowWaveRefraction) * (1.0 / waveLength);
     float deepWavePhase    = (atan(vertexPos.z, vertexPos.x) + noise(vertexPos.xyz * 15.0) * 0.075) * (1.5 / waveLength);
@@ -137,8 +137,11 @@ void main()
     mat3 invTranspose = mat3(u_ModelInvTr);
 
     float gap = clamp((1.0 - (oceneHeight - height)), 0.0, 1.0);
-    gap = pow(gap, 3.0);
-    vec4 ocenColor = u_OceanColor  * gap;
+    float gap5 = pow(gap, 3.0);
+
+    
+
+    vec4 ocenColor = u_OceanColor  * gap5;
 
     float oceneRougness = 0.15;
     float iceRougness = 0.15;
@@ -149,8 +152,9 @@ void main()
     //ocean
     if(height < oceneHeight)
     {
-        float wave = OceanNoise(vertexPos.xyz, oceneHeight, noiseResult);    
-        wave *= max(1.0 - gap, 0.0);  
+        float gap10 = pow(pow(gap, 100.0), 0.8);
+
+        float wave = OceanNoise(vertexPos.xyz, oceneHeight, noiseResult, gap10);  
         vertexPos.xyz = (oceneHeight + wave) * localNormal;
 
         fs_Pos = vertexPos;
