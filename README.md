@@ -6,7 +6,9 @@
 
 ![](imgs/main.png)
 
-[Live Demo Link](https://github.com/byumjin)
+# Live Demo
+
+[Live Demo Link](https://byumjin.github.io/homework-1-noisy-planets-byumjin/)
 
 # Overview
 
@@ -40,7 +42,7 @@
 
 | 0.8 | 0.9 | 1.0 | 1.1 |
 | --- | --- | --- | --- |
-| ![](imgs/ocean_00.png) | ![](imgs/ocean_01.png) | ![](imgs/default.png) | ![](imgs/ocean_01.png) |
+| ![](imgs/ocean_00.png) | ![](imgs/ocean_01.png) | ![](imgs/default.png) | ![](imgs/ocean_03.png) |
 
 - ShoreHieght(relative value) decides the height of shore area from the Ocean's Height.
 
