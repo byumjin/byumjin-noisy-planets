@@ -8,7 +8,7 @@
 
 # Live Demo
 
-[Live Demo Link](https://byumjin.github.io/homework-1-noisy-planets-byumjin/)
+[Live Demo Link](https://byumjin.github.io/byumjin-noisy-planets/)
 
 # Overview
 
