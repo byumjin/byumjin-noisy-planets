@@ -26,8 +26,6 @@ in vec4 vs_Nor;             // The array of vertex normals passed to the shader
 in vec4 vs_Col;             // The array of vertex colors passed to the shader.
 
 //Noise Generator, refer to "Implicit Procedural Planet Generation Report" 
-
-
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
 float hash(float n)
@@ -43,7 +41,6 @@ float hash(float n)
     }
    
 }
-//float noise(float x) { float i = floor(x); float f = fract(x); float u = f * f * (3.0 - 2.0 * f); return mix(hash(i), hash(i + 1.0), u); }
 
 float noise(vec3 x)
 {   
@@ -152,10 +149,11 @@ void main()
     //ocean
     if(height < oceneHeight)
     {
-        float gap10 = pow(pow(gap, 100.0), 0.8);
+        //float gap10 = pow(pow(gap, 100.0), 0.8);
+        //float wave = OceanNoise(vertexPos.xyz, oceneHeight, noiseResult, gap10);  
+        //vertexPos.xyz = (oceneHeight + wave) * localNormal;
 
-        float wave = OceanNoise(vertexPos.xyz, oceneHeight, noiseResult, gap10);  
-        vertexPos.xyz = (oceneHeight + wave) * localNormal;
+        vertexPos.xyz = oceneHeight * localNormal;
 
         fs_Pos = vertexPos;
         fs_TerrainInfo.w = oceneRougness;

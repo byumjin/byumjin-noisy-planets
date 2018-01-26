@@ -143,6 +143,21 @@ float SphericalPhi(vec3 v)
 	return (p < 0.0f) ? (p + TwoPi) : p;
 }
 
+float OceanNoise(vec3 vertexPos, float oceneHeight, float noiseResult, float blendFactor)
+{
+    float relativeWaterDepth = min(1.0, (oceneHeight - noiseResult) * 15.0);
+
+    float oceanTime = u_TimeInfo.x * 0.03;
+
+    float shallowWaveRefraction = 4.0;
+    float waveMagnitude = 0.0002;
+    float waveLength = mix(0.007, 0.0064, blendFactor);
+
+    float shallowWavePhase = (vertexPos.y - noiseResult * shallowWaveRefraction) * (1.0 / waveLength);
+    float deepWavePhase    = (atan(vertexPos.z, vertexPos.x) + noise(vertexPos.xyz * 15.0) * 0.075) * (1.5 / waveLength);
+    return (cos(shallowWavePhase + oceanTime  * 1.5) * sqrt(1.0 - relativeWaterDepth) + cos(deepWavePhase + oceanTime  * 2.0) * 2.5 * (1.0 - abs(vertexPos.y)) * (relativeWaterDepth * relativeWaterDepth)) * waveMagnitude;
+}
+
 void main()
 {
     // Material base color (before shading)
@@ -163,21 +178,17 @@ void main()
 
     a = pow(a, 5.0);
 
+    float u_resolution = 4.0;
+    float constant = 10.0;
+    float sm = (1.0 - smoothstep(0.0, 6.0, log(fs_ViewVec.w)));
+    int LOD = int(constant * pow(sm, 1.7));	
+
+	float noise = fbm(fs_Pos.xyz*u_resolution, LOD) * 2.0;                  
+    noise = pow(noise, u_TimeInfo.z);
+
     //terrain
     if(fs_TerrainInfo.x > 0.0 && fs_TerrainInfo.x < 0.2 )
     {
-        float u_resolution = 4.0;
-
-        float constant = 10.0;
-
-        float sm = (1.0 - smoothstep(0.0, 6.0, log(fs_ViewVec.w)));
-
-        int LOD = int(constant * pow(sm, 1.7));
-
-        float noise = fbm(fs_Pos.xyz*u_resolution, LOD) * 2.0;
-                  
-        noise = pow(noise, u_TimeInfo.z);
-
         vec4 vertexPos = fs_Pos;
         vertexPos.xyz += localNormal * noise;
 
@@ -191,7 +202,19 @@ void main()
     {
         vec4 vertexPos = fs_Pos;
 
-         //detail normal
+        float oceneHeight = length(vertexPos.xyz) + u_HeightsInfo.x;
+
+		float height = length(vertexPos.xyz);
+
+		float gap = clamp((1.0 - (oceneHeight - height)), 0.0, 1.0);
+		float gap5 = pow(gap, 3.0);
+
+		float gap10 = pow(pow(gap, 100.0), 0.8);
+
+        float wave = OceanNoise(vertexPos.xyz, oceneHeight, noise, gap10);  
+        vertexPos.xyz = (oceneHeight + wave) * localNormal;
+
+        //detail normal
         normalVec = normalize(cross( dFdx(vertexPos.xyz), dFdy(vertexPos.xyz)));  
     }
    
